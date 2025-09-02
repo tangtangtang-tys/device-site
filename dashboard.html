@@ -1,0 +1,2717 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经销商设备激活统计系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!--    <script src="https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json"></script>-->
+    <script>
+        // 简化的中国地图数据
+        const chinaGeoJson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"name": "上海", "cp": [121.4737, 31.2304]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[121.4, 31.2], [121.5, 31.2], [121.5, 31.3], [121.4, 31.3], [121.4, 31.2]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "江苏", "cp": [118.7969, 32.0603]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[118.7, 32.0], [118.8, 32.0], [118.8, 32.1], [118.7, 32.1], [118.7, 32.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "浙江", "cp": [120.1551, 30.2741]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[120.1, 30.2], [120.2, 30.2], [120.2, 30.3], [120.1, 30.3], [120.1, 30.2]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "安徽", "cp": [117.2272, 31.8206]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[117.2, 31.8], [117.3, 31.8], [117.3, 31.9], [117.2, 31.9], [117.2, 31.8]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "山东", "cp": [117.0009, 36.6758]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[117.0, 36.6], [117.1, 36.6], [117.1, 36.7], [117.0, 36.7], [117.0, 36.6]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "广东", "cp": [113.2644, 23.1291]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[113.2, 23.1], [113.3, 23.1], [113.3, 23.2], [113.2, 23.2], [113.2, 23.1]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "北京", "cp": [116.4074, 39.9042]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[116.4, 39.9], [116.5, 39.9], [116.5, 40.0], [116.4, 40.0], [116.4, 39.9]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "河南", "cp": [113.6401, 34.7566]},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[113.6, 34.7], [113.7, 34.7], [113.7, 34.8], [113.6, 34.8], [113.6, 34.7]]]
+                    }
+                }
+            ]
+        };
+
+        // 简化的世界地图数据 - 按国家区域
+        const worldGeoJson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"name": "United States"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[-125, 25], [-65, 25], [-65, 50], [-125, 50], [-125, 25]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Germany"},
+                    "geometry": {"type": "Polygon", "coordinates": [[[5, 47], [15, 47], [15, 55], [5, 55], [5, 47]]]}
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Japan"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[129, 30], [146, 30], [146, 46], [129, 46], [129, 30]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "United Kingdom"},
+                    "geometry": {"type": "Polygon", "coordinates": [[[-8, 49], [2, 49], [2, 61], [-8, 61], [-8, 49]]]}
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "France"},
+                    "geometry": {"type": "Polygon", "coordinates": [[[-5, 42], [8, 42], [8, 51], [-5, 51], [-5, 42]]]}
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Canada"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[-140, 42], [-52, 42], [-52, 84], [-140, 84], [-140, 42]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Australia"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[113, -44], [154, -44], [154, -10], [113, -10], [113, -44]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "South Korea"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[124, 33], [131, 33], [131, 39], [124, 39], [124, 33]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Brazil"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[-74, -34], [-34, -34], [-34, 5], [-74, 5], [-74, -34]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "India"},
+                    "geometry": {"type": "Polygon", "coordinates": [[[68, 6], [97, 6], [97, 37], [68, 37], [68, 6]]]}
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Russia"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19, 41], [169, 41], [169, 82], [19, 82], [19, 41]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Mexico"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[-117, 14], [-86, 14], [-86, 33], [-117, 33], [-117, 14]]]
+                    }
+                }
+            ]
+        };
+
+        // 注册地图
+        if (typeof echarts !== 'undefined') {
+            echarts.registerMap('china', chinaGeoJson);
+            echarts.registerMap('world', worldGeoJson);
+        }
+
+        // 可选：动态加载完整中国地图（避免数据名和几何不匹配）
+        async function loadFullChinaMap() {
+            try {
+                const resp = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+                if (!resp.ok) return; // 网络失败则用简化版
+                const full = await resp.json();
+                echarts.registerMap('china', full);
+            } catch (e) {
+                console.warn('加载完整中国地图失败，继续使用内置简化版。', e);
+            }
+        }
+
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #1e293b;
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 72px);
+        }
+
+        .sidebar {
+            width: 20%;
+            min-width: 280px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* 搜索容器 */
+        .search-container {
+            margin-top: 16px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 8px 32px 8px 32px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            color: #1e293b;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .clear-icon:hover {
+            color: #3b82f6;
+        }
+
+        .dealer-list {
+            padding: 16px;
+        }
+
+        .dealer-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dealer-item:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .dealer-item.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .dealer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #64748b;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .dealer-item.active .dealer-avatar {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .dealer-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dealer-name {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dealer-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .dealer-stats {
+            font-size: 12px;
+            color: #64748b;
+            flex: 1;
+        }
+
+        .dealer-item.active .dealer-stats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dealer-level {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .dealer-level.total {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .dealer-level.level1 {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .dealer-item.active .dealer-level {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* 搜索高亮样式 */
+        .dealer-item.search-highlight {
+            border-color: #fbbf24;
+            background: #fffbeb;
+        }
+
+        /* 展开按钮 */
+        .expand-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .expand-btn:hover {
+            color: #3b82f6;
+        }
+
+        .expand-btn i {
+            transition: transform 0.2s ease;
+        }
+
+        .expand-btn.expanded i {
+            transform: rotate(180deg);
+        }
+
+        /* 子级经销商列表 */
+        .sub-dealer-list {
+            margin-left: 20px;
+            border-left: 2px solid #f1f5f9;
+            padding-left: 16px;
+        }
+
+        .sub-dealer-list.level3 {
+            margin-left: 40px;
+        }
+
+        .dealer-item.level2 {
+            margin-bottom: 6px;
+        }
+
+        .dealer-item.level3 {
+            margin-bottom: 4px;
+        }
+
+        .dealer-avatar.level2 {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .dealer-avatar.level3 {
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+
+        .dealer-level.level2 {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .dealer-level.level3 {
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+
+        .dealer-item.level2.active .dealer-avatar,
+        .dealer-item.level3.active .dealer-avatar {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* 经销商级别标识 */
+        .dealer-level-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .dealer-level-badge.level1 {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .dealer-level-badge.level2 {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .dealer-level-badge.level3 {
+            background: #faf5ff;
+            color: #7c3aed;
+        }
+
+        font-size:
+
+        12
+        px
+
+        ;
+        opacity:
+
+        0.7
+        ;
+        display: flex
+
+        ;
+        justify-content: space-between
+
+        ;
+        }
+
+        .dealer-level {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .content-area {
+            width: 75%;
+            padding: 24px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        /* 预警横幅 */
+        .alert-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #92400e;
+        }
+
+        .alert-icon {
+            color: #f59e0b;
+            font-size: 18px;
+        }
+
+        .current-dealer {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .current-dealer h2 {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .current-dealer p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 28px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--stat-color, #3b82f6);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--stat-color, #3b82f6) 15, transparent 70%);
+            opacity: 0.05;
+            border-radius: 50%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-trend.up {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .stat-trend.down {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        .stat-main {
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            color: #475569;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-tooltip {
+            position: relative;
+            cursor: help;
+            color: #64748b;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 94%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #1e293b;
+            z-index: 1000;
+        }
+
+        .stat-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 0;
+            border-top: 2px solid #f1f5f9;
+            position: relative;
+        }
+
+        .comparison-item {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .comparison-item:first-child::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 1px;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .chart-header {
+            padding: 18px 20px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .chart-container {
+            height: 350px;
+            padding: 16px 20px 20px;
+        }
+
+        .large-chart {
+            grid-column: 1 / -1;
+        }
+
+        .large-chart .chart-container {
+            height: 400px;
+        }
+
+        .control-btn {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        .control-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* 排行榜样式 */
+        .ranking-list {
+            padding: 16px 20px 20px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 12px;
+        }
+
+        .ranking-number.top3 {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+        }
+
+        .ranking-number:not(.top3) {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .ranking-value {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .ranking-count {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        /* 日期选择器样式 */
+        .date-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .time-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-controls.hidden {
+            display: none !important;
+        }
+
+        .date-input {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            background: white;
+            color: #1e293b;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .date-separator {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .apply-btn {
+            padding: 6px 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .apply-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .content-area {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-content">
+        <h1>
+            <div class="header-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            经销商设备激活统计系统
+        </h1>
+        <div class="user-info">
+            <span>维拍方案商总代理</span>
+            <span>|</span>
+            <span>统计起始：2022-06-01</span>
+            <span>|</span>
+            <span>最后更新：2024-08-30 17:04</span>
+        </div>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <i class="fas fa-store"></i>
+                经销商列表
+            </div>
+            <!-- 搜索框 -->
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="dealer-search" placeholder="搜索经销商..."
+                           oninput="searchDealers(this.value)">
+                    <i class="fas fa-times clear-icon" onclick="clearSearch()" style="display: none;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="dealer-list">
+            <div class="dealer-item active" onclick="switchDealer('all', this)" data-name="维拍方案商总代理">
+                <div class="dealer-avatar">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="dealer-content">
+                    <div class="dealer-name">
+                        维拍方案商总代理
+                        <span class="dealer-level total">总代理</span>
+                    </div>
+                    <div class="dealer-info">
+                        <span class="dealer-stats">总览数据</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 上海智能科技 -->
+            <div class="dealer-item" onclick="switchDealer('shanghai', this)" data-name="上海智能科技">
+                <div class="dealer-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="dealer-content">
+                    <div class="dealer-name">
+                        上海智能科技
+                        <span class="dealer-level level1">一级</span>
+                    </div>
+                    <div class="dealer-info">
+                        <span class="dealer-stats">设备: 28,456台</span>
+                    </div>
+                </div>
+                <div class="expand-btn expanded" onclick="event.stopPropagation(); toggleSubDealer('shanghai-sub')">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <!-- 上海的二级经销商 -->
+            <div class="sub-dealer-list" id="shanghai-sub" style="display: block;">
+                <div class="dealer-item level2" onclick="switchDealer('shanghai-pudong', this)"
+                     data-name="浦东电子设备">
+                    <div class="dealer-avatar level2">
+                        <i class="fas fa-shop"></i>
+                    </div>
+                    <div class="dealer-content">
+                        <div class="dealer-name">
+                            浦东电子设备
+                            <span class="dealer-level level2">二级</span>
+                        </div>
+                        <div class="dealer-info">
+                            <span class="dealer-stats">设备: 12,200台</span>
+                        </div>
+                    </div>
+                    <div class="expand-btn expanded" onclick="event.stopPropagation(); toggleSubDealer('pudong-sub')">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- 浦东的三级经销商 -->
+                <div class="sub-dealer-list level3" id="pudong-sub" style="display: block;">
+                    <div class="dealer-item level3" onclick="switchDealer('zhangjiang', this)" data-name="张江科技园店">
+                        <div class="dealer-avatar level3">
+                            <i class="fas fa-store-alt"></i>
+                        </div>
+                        <div class="dealer-content">
+                            <div class="dealer-name">
+                                张江科技园店
+                                <span class="dealer-level level3">三级</span>
+                            </div>
+                            <div class="dealer-info">
+                                <span class="dealer-stats">设备: 4,800台</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dealer-item level3" onclick="switchDealer('lujiazui', this)" data-name="陆家嘴金融店">
+                        <div class="dealer-avatar level3">
+                            <i class="fas fa-store-alt"></i>
+                        </div>
+                        <div class="dealer-content">
+                            <div class="dealer-name">
+                                陆家嘴金融店
+                                <span class="dealer-level level3">三级</span>
+                            </div>
+                            <div class="dealer-info">
+                                <span class="dealer-stats">设备: 3,600台</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dealer-item level2" onclick="switchDealer('shanghai-xuhui', this)" data-name="徐汇智能设备">
+                    <div class="dealer-avatar level2">
+                        <i class="fas fa-shop"></i>
+                    </div>
+                    <div class="dealer-content">
+                        <div class="dealer-name">
+                            徐汇智能设备
+                            <span class="dealer-level level2">二级</span>
+                        </div>
+                        <div class="dealer-info">
+                            <span class="dealer-stats">设备: 8,800台</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 江苏电子设备 -->
+            <div class="dealer-item" onclick="switchDealer('jiangsu', this)" data-name="江苏电子设备">
+                <div class="dealer-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="dealer-content">
+                    <div class="dealer-name">
+                        江苏电子设备
+                        <span class="dealer-level level1">一级</span>
+                    </div>
+                    <div class="dealer-info">
+                        <span class="dealer-stats">设备: 32,100台</span>
+                    </div>
+                </div>
+                <div class="expand-btn" onclick="event.stopPropagation(); toggleSubDealer('jiangsu-sub')">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <!-- 江苏的二级经销商 -->
+            <div class="sub-dealer-list" id="jiangsu-sub" style="display: none;">
+                <div class="dealer-item level2" onclick="switchDealer('nanjing', this)" data-name="南京智能科技">
+                    <div class="dealer-avatar level2">
+                        <i class="fas fa-shop"></i>
+                    </div>
+                    <div class="dealer-content">
+                        <div class="dealer-name">
+                            南京智能科技
+                            <span class="dealer-level level2">二级</span>
+                        </div>
+                        <div class="dealer-info">
+                            <span class="dealer-stats">设备: 15,600台</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dealer-item level2" onclick="switchDealer('suzhou', this)" data-name="苏州工业设备">
+                    <div class="dealer-avatar level2">
+                        <i class="fas fa-shop"></i>
+                    </div>
+                    <div class="dealer-content">
+                        <div class="dealer-name">
+                            苏州工业设备
+                            <span class="dealer-level level2">二级</span>
+                        </div>
+                        <div class="dealer-info">
+                            <span class="dealer-stats">设备: 10,400台</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dealer-item" onclick="switchDealer('zhejiang', this)" data-name="浙江机电商贸">
+                <div class="dealer-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="dealer-content">
+                    <div class="dealer-name">
+                        浙江机电商贸
+                        <span class="dealer-level level1">一级</span>
+                    </div>
+                    <div class="dealer-info">
+                        <span class="dealer-stats">设备: 24,800台</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dealer-item" onclick="switchDealer('anhui', this)" data-name="安徽工控设备">
+                <div class="dealer-avatar">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="dealer-content">
+                    <div class="dealer-name">
+                        安徽工控设备
+                        <span class="dealer-level level1">一级</span>
+                    </div>
+                    <div class="dealer-info">
+                        <span class="dealer-stats">设备: 18,200台</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <!-- 预警横幅 -->
+        <div class="alert-banner">
+            <i class="fas fa-exclamation-triangle alert-icon"></i>
+            <span><strong>激活率预警：</strong>当前激活率为68.5%，低于预设阈值70%，建议关注库存积压情况</span>
+        </div>
+
+        <div class="current-dealer">
+            <h2 id="current-dealer-name">维拍方案商总代理</h2>
+            <p id="current-dealer-desc">查看总览数据统计信息（统计起始：2022-06-01）</p>
+        </div>
+
+        <!-- 核心指标 -->
+        <div class="stats-grid">
+            <div class="stat-card" style="--stat-color: #3b82f6;">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="4" width="20" height="16" rx="2" fill="white" opacity="0.9"></rect>
+                            <rect x="4" y="6" width="4" height="4" rx="1" fill="#3b82f6"></rect>
+                            <rect x="10" y="6" width="4" height="4" rx="1" fill="#3b82f6"></rect>
+                            <rect x="16" y="6" width="4" height="4" rx="1" fill="#3b82f6"></rect>
+                            <rect x="4" y="12" width="4" height="4" rx="1" fill="#60a5fa"></rect>
+                            <rect x="10" y="12" width="4" height="4" rx="1" fill="#60a5fa"></rect>
+                            <rect x="16" y="12" width="4" height="4" rx="1" fill="#60a5fa"></rect>
+                            <circle cx="12" cy="2" r="1" fill="white" opacity="0.8"></circle>
+                            <circle cx="8" cy="2" r="0.5" fill="white" opacity="0.6"></circle>
+                            <circle cx="16" cy="2" r="0.5" fill="white" opacity="0.6"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-trend down">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>较上月-1.8%</span>
+                    </div>
+                </div>
+                <div class="stat-main">
+                    <div class="stat-number" id="total-devices">103,556</div>
+                    <div class="stat-label">累计设备总数</div>
+                </div>
+                <div class="stat-comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">7月数据</div>
+                        <div class="comparison-value">105,456</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">月度变化</div>
+                        <div class="comparison-value">-1,900</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="--stat-color: #10b981;">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="white" opacity="0.9"></circle>
+                            <path d="M8 12l2 2 4-4" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"
+                                  stroke-linejoin="round"></path>
+                            <circle cx="12" cy="12" r="6" fill="none" stroke="#10b981" stroke-width="1.5"
+                                    opacity="0.3"></circle>
+                            <circle cx="6" cy="6" r="1.5" fill="white" opacity="0.8"></circle>
+                            <circle cx="18" cy="6" r="1" fill="white" opacity="0.6"></circle>
+                            <circle cx="6" cy="18" r="1" fill="white" opacity="0.6"></circle>
+                            <circle cx="18" cy="18" r="1.5" fill="white" opacity="0.8"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>较上月+4.1%</span>
+                    </div>
+                </div>
+                <div class="stat-main">
+                    <div class="stat-number" id="activated-devices">70,956</div>
+                    <div class="stat-label">累计激活设备</div>
+                </div>
+                <div class="stat-comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">7月数据</div>
+                        <div class="comparison-value">68,156</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">月度增长</div>
+                        <div class="comparison-value">+2,800</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="--stat-color: #f59e0b;">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" fill="white" opacity="0.9"></circle>
+                            <path d="M12 2 A10 10 0 0 1 19.5 8.5" stroke="#f59e0b" stroke-width="3"
+                                  stroke-linecap="round" fill="none"></path>
+                            <path d="M12 2 A10 10 0 0 1 22 12" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
+                                  fill="none" opacity="0.6"></path>
+                            <circle cx="12" cy="12" r="3" fill="#f59e0b" opacity="0.8"></circle>
+                            <text x="12" y="16" text-anchor="middle" fill="#d97706" font-size="6" font-weight="bold">%
+                            </text>
+                            <circle cx="5" cy="5" r="1" fill="white" opacity="0.7"></circle>
+                            <circle cx="19" cy="5" r="0.8" fill="white" opacity="0.5"></circle>
+                            <circle cx="5" cy="19" r="0.8" fill="white" opacity="0.5"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>较上月+1.2%</span>
+                    </div>
+                </div>
+                <div class="stat-main">
+                    <div class="stat-number" id="activation-rate">68.5%</div>
+                    <div class="stat-label">
+                        设备激活率
+                        <i class="fas fa-info-circle info-tooltip"
+                           data-tooltip="激活率 = 累计激活设备数 ÷ 累计设备总数 × 100%"></i>
+                    </div>
+                </div>
+                <div class="stat-comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">7月激活率</div>
+                        <div class="comparison-value">67.3%</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">提升幅度</div>
+                        <div class="comparison-value">+1.2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="--stat-color: #8b5cf6;">
+                <div class="stat-header">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="16" rx="2" fill="white" opacity="0.9"></rect>
+                            <rect x="3" y="4" width="18" height="4" rx="2" fill="#8b5cf6" opacity="0.8"></rect>
+                            <circle cx="6" cy="6" r="0.8" fill="white"></circle>
+                            <circle cx="8.5" cy="6" r="0.8" fill="white"></circle>
+                            <circle cx="11" cy="6" r="0.8" fill="white"></circle>
+                            <rect x="6" y="11" width="2" height="6" rx="1" fill="#8b5cf6"></rect>
+                            <rect x="9" y="13" width="2" height="4" rx="1" fill="#a78bfa"></rect>
+                            <rect x="12" y="10" width="2" height="7" rx="1" fill="#8b5cf6"></rect>
+                            <rect x="15" y="12" width="2" height="5" rx="1" fill="#a78bfa"></rect>
+                            <path d="M18 9 L20 11 L18 13" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"
+                                  stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>较同期+12.3%</span>
+                    </div>
+                </div>
+                <div class="stat-main">
+                    <div class="stat-number" id="monthly-activation">2,456</div>
+                    <div class="stat-label">本月新增激活</div>
+                </div>
+                <div class="stat-comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">上月同期<br><span style="font-size: 10px; color: #94a3b8;">(7月1-30日)</span>
+                        </div>
+                        <div class="comparison-value">2,187</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">同比增长<br><span style="font-size: 10px; color: #94a3b8;">(8月1-30日)</span>
+                        </div>
+                        <div class="comparison-value">+269</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每日设备激活趋势 - 单独一行 -->
+        <div class="chart-card large-chart">
+            <div class="chart-header">
+                <div class="chart-title">每日设备激活趋势</div>
+                <div class="date-controls">
+                    <button class="control-btn active" onclick="changePeriod('daily', this)">按日</button>
+                    <button class="control-btn" onclick="changePeriod('monthly', this)">按月</button>
+
+                    <!-- 按日期选择器 -->
+                    <div id="daily-controls" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="date" class="date-input" id="start-date" value="2024-08-24">
+                        <span class="date-separator">至</span>
+                        <input type="date" class="date-input" id="end-date" value="2024-08-30">
+                        <button class="apply-btn" onclick="applyDateRange()">查询</button>
+                    </div>
+
+                    <!-- 按月选择器 -->
+                    <div id="monthly-controls" style="display: none; align-items: center; gap: 8px;">
+                        <input type="month" class="date-input" id="start-month" value="2024-01">
+                        <span class="date-separator">至</span>
+                        <input type="month" class="date-input" id="end-month" value="2024-08">
+                        <button class="apply-btn" onclick="applyMonthRange()">查询</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container" id="trend-chart" _echarts_instance_="ec_1756715796677"
+                 style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                <div style="position: relative; width: 1255px; height: 364px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;">
+                    <canvas data-zr-dom-id="zr_0" width="1255" height="364"
+                            style="position: absolute; left: 0px; top: 0px; width: 1255px; height: 364px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
+                </div>
+                <div class=""
+                     style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(1041px, 162px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;">
+                    <div style="margin: 0px 0 0;line-height:1;">
+                        <div style="margin: 0px 0 0;line-height:1;">
+                            <div style="font-size:14px;color:#666;font-weight:400;line-height:1;">08-30</div>
+                            <div style="margin: 10px 0 0;line-height:1;">
+                                <div style="margin: 0px 0 0;line-height:1;">
+                                    <div style="margin: 0px 0 0;line-height:1;"><span
+                                            style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#3b82f6;"></span><span
+                                            style="font-size:14px;color:#666;font-weight:400;margin-left:2px">每日激活数</span><span
+                                            style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">456</span>
+                                        <div style="clear:both"></div>
+                                    </div>
+                                    <div style="clear:both"></div>
+                                </div>
+                                <div style="clear:both"></div>
+                            </div>
+                            <div style="clear:both"></div>
+                        </div>
+                        <div style="clear:both"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备激活区域趋势分析 - 单独一行 -->
+        <div class="chart-card large-chart">
+            <div class="chart-header">
+                <div class="chart-title">设备激活区域趋势分析（区分国家）</div>
+                <div class="date-controls">
+                    <button class="control-btn active" onclick="changeRegionPeriod('daily', this)">按日</button>
+                    <button class="control-btn" onclick="changeRegionPeriod('monthly', this)">按月</button>
+
+                    <!-- 按日期选择器 -->
+                    <div id="region-daily-controls" class="time-controls">
+                        <input type="date" class="date-input" id="region-start-date" value="2024-08-24">
+                        <span class="date-separator">至</span>
+                        <input type="date" class="date-input" id="region-end-date" value="2024-08-30">
+                        <button class="apply-btn" onclick="updateRegionTrend()">查询</button>
+                    </div>
+
+                    <!-- 按月选择器 -->
+                    <div id="region-monthly-controls" class="time-controls hidden">
+                        <input type="month" class="date-input" id="region-start-month" value="2024-01">
+                        <span class="date-separator">至</span>
+                        <input type="month" class="date-input" id="region-end-month" value="2024-08">
+                        <button class="apply-btn" onclick="updateRegionTrend()">查询</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container" id="region-trend-chart" _echarts_instance_="ec_1756715796680"
+                 style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                <div style="position: relative; width: 1255px; height: 364px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;">
+                    <canvas data-zr-dom-id="zr_0" width="1255" height="364"
+                            style="position: absolute; left: 0px; top: 0px; width: 1255px; height: 364px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
+                </div>
+                <div class=""
+                     style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(1206px, 123px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;">
+                    08-28<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#3b82f6;"></span>中国:
+                    890台<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#10b981;"></span>美国:
+                    225台<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#f59e0b;"></span>德国:
+                    150台<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8b5cf6;"></span>日本:
+                    130台<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#ef4444;"></span>英国:
+                    95台<br><span
+                        style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#06b6d4;"></span>法国:
+                    85台<br></div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-grid">
+            <!-- 近1年设备激活地区分布 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">近1年设备激活地区分布</div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="control-btn active" onclick="changeRegion('domestic', this)">国内</button>
+                        <button class="control-btn" onclick="changeRegion('overseas', this)">海外</button>
+                    </div>
+                </div>
+                <div class="chart-container" id="heatmap-chart" _echarts_instance_="ec_1756715796681"
+                     style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                    <div style="position: relative; width: 725px; height: 314px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;">
+                        <canvas data-zr-dom-id="zr_0" width="725" height="314"
+                                style="position: absolute; left: 0px; top: 0px; width: 725px; height: 314px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
+                    </div>
+                    <div class=""></div>
+                </div>
+            </div>
+
+            <!-- 一级经销商激活排行TOP10 -->
+            <div class="chart-card" id="dealer-ranking-card" style="display: block;">
+                <div class="chart-header">
+                    <div class="chart-title">经销商设备激活月度排行TOP10</div>
+                    <div class="query-controls">
+                        <input type="month" class="date-input" id="dealer-month" value="2024-08">
+                        <button class="apply-btn" onclick="updateDealerRanking()">查询</button>
+                    </div>
+                </div>
+                <div class="ranking-list">
+                    <div class="ranking-item">
+                        <div class="ranking-number top3">1</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                江苏电子设备
+                                <span class="dealer-level-badge level1">一级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">2,680</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number top3">2</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                上海智能科技
+                                <span class="dealer-level-badge level1">一级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">2,370</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number top3">3</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                浙江机电商贸
+                                <span class="dealer-level-badge level1">一级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">2,070</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">4</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                安徽工控设备
+                                <span class="dealer-level-badge level1">一级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">1,520</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">5</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                南京智能科技
+                                <span class="dealer-level-badge level2">二级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">1,300</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">6</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                浦东电子设备
+                                <span class="dealer-level-badge level2">二级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">1,020</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">7</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                苏州工业设备
+                                <span class="dealer-level-badge level2">二级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">870</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">8</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                徐汇智能设备
+                                <span class="dealer-level-badge level2">二级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">730</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">9</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                张江科技园店
+                                <span class="dealer-level-badge level3">三级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">400</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-number">10</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">
+                                陆家嘴金融店
+                                <span class="dealer-level-badge level3">三级</span>
+                            </div>
+                            <div class="ranking-value">2024年8月激活数</div>
+                        </div>
+                        <div class="ranking-count">300</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备激活产品型号月排行统计TOP10 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">设备激活产品型号月排行统计TOP10</div>
+                    <div class="query-controls">
+                        <input type="month" class="date-input" id="product-month" value="2024-08">
+                        <button class="apply-btn" onclick="updateProductRanking()">查询</button>
+                    </div>
+                </div>
+                <div class="chart-container" id="product-monthly-chart" _echarts_instance_="ec_1756715796679"
+                     style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                    <div style="position: relative; width: 725px; height: 314px; padding: 0px; margin: 0px; border-width: 0px;">
+                        <canvas data-zr-dom-id="zr_0" width="725" height="314"
+                                style="position: absolute; left: 0px; top: 0px; width: 725px; height: 314px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
+                    </div>
+                    <div class=""></div>
+                </div>
+            </div>
+
+            <!-- 累计设备激活产品型号占比分析 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">累计设备激活产品型号占比分析</div>
+                </div>
+                <div class="chart-container" id="product-pie-chart" _echarts_instance_="ec_1756715796678"
+                     style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+                    <div style="position: relative; width: 470px; height: 314px; padding: 0px; margin: 0px; border-width: 0px;">
+                        <canvas data-zr-dom-id="zr_0" width="470" height="314"
+                                style="position: absolute; left: 0px; top: 0px; width: 470px; height: 314px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
+                    </div>
+                    <div class=""></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let trendChart, productPieChart, productMonthlyChart, regionTrendChart, heatmapChart;
+
+    function initCharts() {
+        // 激活趋势图
+        trendChart = echarts.init(document.getElementById('trend-chart'));
+        const trendOption = {
+            tooltip: {trigger: 'axis'},
+            grid: {left: '3%', right: '4%', bottom: '3%', containLabel: true},
+            xAxis: {
+                type: 'category',
+                data: ['08-24', '08-25', '08-26', '08-27', '08-28', '08-29', '08-30']
+            },
+            yAxis: {type: 'value'},
+            series: [{
+                name: '每日激活数',
+                type: 'line',
+                smooth: true,
+                data: [320, 450, 380, 520, 490, 600, 456],
+                itemStyle: {color: '#3b82f6'},
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            {offset: 0, color: 'rgba(59, 130, 246, 0.3)'},
+                            {offset: 1, color: 'rgba(59, 130, 246, 0.05)'}
+                        ]
+                    }
+                }
+            }]
+        };
+        trendChart.setOption(trendOption);
+
+        // 产品型号占比环形图
+        productPieChart = echarts.init(document.getElementById('product-pie-chart'));
+        const productPieOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c}台 ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 'middle',
+                textStyle: {
+                    fontSize: 12,
+                    color: '#64748b'
+                }
+            },
+            series: [{
+                name: '激活数量',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['65%', '50%'],
+                itemStyle: {
+                    borderRadius: 8,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                },
+                data: [
+                    {value: 18500, name: 'VT-200', itemStyle: {color: '#3b82f6'}},
+                    {value: 15200, name: 'VT-150', itemStyle: {color: '#10b981'}},
+                    {value: 12800, name: 'VT-300', itemStyle: {color: '#f59e0b'}},
+                    {value: 9800, name: 'VT-100', itemStyle: {color: '#8b5cf6'}},
+                    {value: 7200, name: 'VT-250', itemStyle: {color: '#ef4444'}},
+                    {value: 4800, name: 'VT-180', itemStyle: {color: '#06b6d4'}},
+                    {value: 2656, name: '其他型号', itemStyle: {color: '#64748b'}}
+                ]
+            }]
+        };
+        productPieChart.setOption(productPieOption);
+
+        // 产品型号月排行统计图
+        productMonthlyChart = echarts.init(document.getElementById('product-monthly-chart'));
+        updateProductRanking(); // 初始化显示当前月份数据
+
+        // 初始化经销商月度排行
+        updateDealerRanking();
+        
+        // 添加经销商月份选择器事件监听
+        const dealerMonthInput = document.getElementById('dealer-month');
+        if (dealerMonthInput) {
+            dealerMonthInput.addEventListener('change', updateDealerRanking);
+        }
+        
+        // 添加产品月份选择器事件监听
+        const productMonthInput = document.getElementById('product-month');
+        if (productMonthInput) {
+            productMonthInput.addEventListener('change', updateProductRanking);
+        }
+
+        // 区域趋势分析图
+        regionTrendChart = echarts.init(document.getElementById('region-trend-chart'));
+        updateRegionTrend(); // 初始化显示区域趋势
+
+        // 地区热力图
+        heatmapChart = echarts.init(document.getElementById('heatmap-chart'));
+
+        // 初始显示国内地图
+        // 先尝试加载完整中国地图，成功则渲染完整边界；失败则用简化版
+        loadFullChinaMap().finally(showDomesticMap);
+
+    }
+
+    function showDomesticMap() {
+        const chinaOption = {
+            title: {
+                text: '国内激活分布',
+                left: 'center',
+                textStyle: {fontSize: 14, color: '#64748b'}
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    if (params.seriesType === 'map') {
+                        return params.name + '<br/>激活数量: ' + (params.value || 0) + '台';
+                    }
+                    return params.name + ': ' + params.value;
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 35000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],
+                calculable: true,
+                inRange: {
+                    color: ['#e6f3ff', '#93c5fd', '#3b82f6', '#1e40af']
+                },
+                textStyle: {color: '#64748b', fontSize: 10}
+            },
+            series: [{
+                name: '激活数量',
+                type: 'map',
+                map: 'china',
+                roam: true,
+                scaleLimit: {min: 0.8, max: 3},
+                data: [
+                    {name: '上海', value: 28456},
+                    {name: '江苏', value: 32100},
+                    {name: '浙江', value: 24800},
+                    {name: '安徽', value: 18200},
+                    {name: '山东', value: 15600},
+                    {name: '广东', value: 22300},
+                    {name: '北京', value: 12800},
+                    {name: '河南', value: 9500},
+                    {name: '湖北', value: 8200},
+                    {name: '四川', value: 7800},
+                    {name: '重庆', value: 6500},
+                    {name: '天津', value: 5200},
+                    {name: '河北', value: 4800},
+                    {name: '山西', value: 3600},
+                    {name: '辽宁', value: 4200},
+                    {name: '吉林', value: 2800},
+                    {name: '黑龙江', value: 3200},
+                    {name: '福建', value: 8900},
+                    {name: '江西', value: 5600},
+                    {name: '湖南', value: 6800},
+                    {name: '广西', value: 4500},
+                    {name: '海南', value: 1200},
+                    {name: '贵州', value: 2800},
+                    {name: '云南', value: 3500},
+                    {name: '西藏', value: 800},
+                    {name: '陕西', value: 5200},
+                    {name: '甘肃', value: 2200},
+                    {name: '青海', value: 600},
+                    {name: '宁夏', value: 900},
+                    {name: '新疆', value: 1800},
+                    {name: '内蒙古', value: 2600}
+                ],
+                itemStyle: {
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0,0,0,0.1)'
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: '#fbbf24',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        shadowBlur: 8,
+                        shadowColor: 'rgba(251, 191, 36, 0.5)'
+                    },
+                    label: {
+                        show: true,
+                        fontSize: 11,
+                        fontWeight: 'bold',
+                        color: '#1f2937'
+                    }
+                },
+                label: {
+                    show: false,
+                    fontSize: 9,
+                    color: '#64748b'
+                }
+            }]
+        };
+        heatmapChart.setOption(chinaOption, true);
+    }
+
+    function showOverseasMap() {
+        const worldOption = {
+            title: {
+                text: '海外激活分布',
+                left: 'center',
+                textStyle: {fontSize: 14, color: '#64748b'}
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function (params) {
+                    if (params.seriesType === 'map') {
+                        return params.name + '<br/>激活数量: ' + (params.value || 0) + '台';
+                    }
+                    return params.name;
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 8000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],
+                calculable: true,
+                inRange: {
+                    color: ['#fef3c7', '#fbbf24', '#f59e0b', '#d97706', '#b45309']
+                },
+                textStyle: {fontSize: 10, color: '#64748b'}
+            },
+            series: [{
+                name: '激活数量',
+                type: 'map',
+                map: 'world',
+                roam: true,
+                scaleLimit: {min: 0.6, max: 4},
+                data: [
+                    {name: 'United States', value: 7800},
+                    {name: 'Germany', value: 5200},
+                    {name: 'Japan', value: 4600},
+                    {name: 'United Kingdom', value: 3800},
+                    {name: 'France', value: 3200},
+                    {name: 'Canada', value: 2800},
+                    {name: 'Australia', value: 2400},
+                    {name: 'South Korea', value: 2100},
+                    {name: 'Brazil', value: 1800},
+                    {name: 'India', value: 1500},
+                    {name: 'Russia', value: 1200},
+                    {name: 'Mexico', value: 900},
+                    {name: 'Italy', value: 1600},
+                    {name: 'Spain', value: 1400},
+                    {name: 'Netherlands', value: 1100},
+                    {name: 'Singapore', value: 800},
+                    {name: 'Thailand', value: 600},
+                    {name: 'Malaysia', value: 500},
+                    {name: 'Indonesia', value: 400},
+                    {name: 'Philippines', value: 300}
+                ],
+                itemStyle: {
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0,0,0,0.1)'
+                },
+                emphasis: {
+                    itemStyle: {
+                        areaColor: '#ef4444',
+                        borderColor: '#dc2626',
+                        borderWidth: 2,
+                        shadowBlur: 8,
+                        shadowColor: 'rgba(239, 68, 68, 0.5)'
+                    },
+                    label: {
+                        show: true,
+                        fontSize: 11,
+                        fontWeight: 'bold',
+                        color: '#ffffff'
+                    }
+                },
+                label: {
+                    show: false,
+                    fontSize: 9,
+                    color: '#64748b'
+                }
+            }]
+        };
+        heatmapChart.setOption(worldOption, true);
+    }
+
+    // 切换子级经销商显示/隐藏
+    function toggleSubDealer(subId) {
+        const subList = document.getElementById(subId);
+        const expandBtn = event.target.closest('.expand-btn');
+
+        if (subList.style.display === 'none' || !subList.style.display) {
+            subList.style.display = 'block';
+            expandBtn.classList.add('expanded');
+        } else {
+            subList.style.display = 'none';
+            expandBtn.classList.remove('expanded');
+            // 同时收起所有子级的子级
+            const subSubLists = subList.querySelectorAll('.sub-dealer-list');
+            subSubLists.forEach(subSub => {
+                subSub.style.display = 'none';
+                const subExpandBtn = subSub.previousElementSibling?.querySelector('.expand-btn');
+                if (subExpandBtn) subExpandBtn.classList.remove('expanded');
+            });
+        }
+    }
+
+    // 搜索经销商功能
+    function searchDealers(searchTerm) {
+        const dealerItems = document.querySelectorAll('.dealer-item');
+        const subDealerLists = document.querySelectorAll('.sub-dealer-list');
+        const clearIcon = document.querySelector('.clear-icon');
+
+        // 显示/隐藏清除图标
+        if (searchTerm.trim()) {
+            clearIcon.style.display = 'block';
+        } else {
+            clearIcon.style.display = 'none';
+        }
+
+        if (!searchTerm.trim()) {
+            // 重置所有显示状态
+            dealerItems.forEach(item => {
+                item.style.display = 'flex';
+                item.classList.remove('search-highlight');
+            });
+            subDealerLists.forEach(list => {
+                list.style.display = 'none';
+            });
+            document.querySelectorAll('.expand-btn').forEach(btn => {
+                btn.classList.remove('expanded');
+            });
+            return;
+        }
+
+        const searchLower = searchTerm.toLowerCase();
+        let hasResults = false;
+
+        dealerItems.forEach(item => {
+            const dealerName = item.dataset.name.toLowerCase();
+            if (dealerName.includes(searchLower)) {
+                item.style.display = 'flex';
+                item.classList.add('search-highlight');
+                hasResults = true;
+
+                // 如果是子级经销商，展开其父级容器
+                const parentSubList = item.closest('.sub-dealer-list');
+                if (parentSubList) {
+                    parentSubList.style.display = 'block';
+                    // 找到对应的展开按钮
+                    const parentItem = parentSubList.previousElementSibling;
+                    if (parentItem) {
+                        const expandBtn = parentItem.querySelector('.expand-btn');
+                        if (expandBtn) expandBtn.classList.add('expanded');
+                    }
+                }
+            } else {
+                item.style.display = 'none';
+                item.classList.remove('search-highlight');
+            }
+        });
+
+        // 隐藏没有可见子项的子级别容器
+        subDealerLists.forEach(list => {
+            const visibleItems = Array.from(list.querySelectorAll('.dealer-item')).filter(item =>
+                item.style.display !== 'none'
+            );
+            if (visibleItems.length === 0) {
+                list.style.display = 'none';
+                const parentItem = list.previousElementSibling;
+                if (parentItem) {
+                    const expandBtn = parentItem.querySelector('.expand-btn');
+                    if (expandBtn) expandBtn.classList.remove('expanded');
+                }
+            }
+        });
+    }
+
+    // 清除搜索
+    function clearSearch() {
+        const searchInput = document.getElementById('dealer-search');
+        searchInput.value = '';
+        searchDealers('');
+    }
+
+    function switchDealer(dealerId, element) {
+        document.querySelectorAll('.dealer-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+
+        // 控制经销商排行榜的显示
+        const dealerRankingCard = document.getElementById('dealer-ranking-card');
+        if (dealerId === 'all') {
+            // 总代理显示排行榜
+            dealerRankingCard.style.display = 'block';
+        } else {
+            // 其他经销商隐藏排行榜
+            dealerRankingCard.style.display = 'none';
+        }
+
+        updateDealerData(dealerId);
+    }
+
+    function updateDealerData(dealerId) {
+        const dealerData = {
+            'all': {
+                name: '维拍方案商总代理',
+                desc: '查看总览数据统计信息（统计起始：2022-06-01）',
+                totalDevices: '103,556',
+                activatedDevices: '70,956',
+                activationRate: '68.5%',
+                monthlyActivation: '2,456'
+            },
+            'shanghai': {
+                name: '上海智能科技',
+                desc: '上海地区一级经销商数据',
+                totalDevices: '28,456',
+                activatedDevices: '19,200',
+                activationRate: '67.5%',
+                monthlyActivation: '680'
+            },
+            'shanghai-pudong': {
+                name: '浦东电子设备',
+                desc: '上海浦东地区二级经销商数据',
+                totalDevices: '12,200',
+                activatedDevices: '8,240',
+                activationRate: '67.5%',
+                monthlyActivation: '290'
+            },
+            'zhangjiang': {
+                name: '张江科技园店',
+                desc: '张江科技园三级经销商数据',
+                totalDevices: '4,800',
+                activatedDevices: '3,240',
+                activationRate: '67.5%',
+                monthlyActivation: '120'
+            },
+            'lujiazui': {
+                name: '陆家嘴金融店',
+                desc: '陆家嘴金融区三级经销商数据',
+                totalDevices: '3,600',
+                activatedDevices: '2,430',
+                activationRate: '67.5%',
+                monthlyActivation: '90'
+            },
+            'shanghai-xuhui': {
+                name: '徐汇智能设备',
+                desc: '上海徐汇地区二级经销商数据',
+                totalDevices: '8,800',
+                activatedDevices: '5,940',
+                activationRate: '67.5%',
+                monthlyActivation: '210'
+            },
+            'jiangsu': {
+                name: '江苏电子设备',
+                desc: '江苏地区一级经销商数据',
+                totalDevices: '32,100',
+                activatedDevices: '21,668',
+                activationRate: '67.5%',
+                monthlyActivation: '760'
+            },
+            'nanjing': {
+                name: '南京智能科技',
+                desc: '南京地区二级经销商数据',
+                totalDevices: '15,600',
+                activatedDevices: '10,530',
+                activationRate: '67.5%',
+                monthlyActivation: '370'
+            },
+            'suzhou': {
+                name: '苏州工业设备',
+                desc: '苏州地区二级经销商数据',
+                totalDevices: '10,400',
+                activatedDevices: '7,020',
+                activationRate: '67.5%',
+                monthlyActivation: '250'
+            },
+            'zhejiang': {
+                name: '浙江机电商贸',
+                desc: '浙江地区一级经销商数据',
+                totalDevices: '24,800',
+                activatedDevices: '16,740',
+                activationRate: '67.5%',
+                monthlyActivation: '590'
+            },
+            'anhui': {
+                name: '安徽工控设备',
+                desc: '安徽地区一级经销商数据',
+                totalDevices: '18,200',
+                activatedDevices: '12,285',
+                activationRate: '67.5%',
+                monthlyActivation: '430'
+            }
+        };
+
+        const data = dealerData[dealerId] || dealerData['all'];
+
+        document.getElementById('current-dealer-name').textContent = data.name;
+        document.getElementById('current-dealer-desc').textContent = data.desc;
+        document.getElementById('total-devices').textContent = data.totalDevices;
+        document.getElementById('activated-devices').textContent = data.activatedDevices;
+        document.getElementById('activation-rate').textContent = data.activationRate;
+        document.getElementById('monthly-activation').textContent = data.monthlyActivation;
+    }
+
+    function changePeriod(period, element) {
+        // 只移除同级按钮的active类
+        const buttons = element.parentNode.querySelectorAll('.control-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+
+        // 切换控制器显示
+        const dailyControls = document.getElementById('daily-controls');
+        const monthlyControls = document.getElementById('monthly-controls');
+
+        if (period === 'daily') {
+            dailyControls.style.display = 'flex';
+            monthlyControls.style.display = 'none';
+            applyDateRange();
+        } else if (period === 'monthly') {
+            dailyControls.style.display = 'none';
+            monthlyControls.style.display = 'flex';
+            applyMonthRange();
+        }
+    }
+
+    function applyDateRange() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+
+        if (!startDate || !endDate) {
+            alert('请选择完整的日期范围');
+            return;
+        }
+
+        // 生成日期范围数据
+        const dates = generateDateRange(startDate, endDate);
+        const data = generateRandomData(dates.length, 200, 800);
+
+        trendChart.setOption({
+            xAxis: {data: dates},
+            series: [{
+                name: '每日激活数',
+                data: data
+            }]
+        });
+    }
+
+    function applyMonthRange() {
+        const startMonth = document.getElementById('start-month').value;
+        const endMonth = document.getElementById('end-month').value;
+
+        if (!startMonth || !endMonth) {
+            alert('请选择完整的月份范围');
+            return;
+        }
+
+        // 生成月份范围数据
+        const months = generateMonthRange(startMonth, endMonth);
+        const data = generateRandomData(months.length, 8000, 18000);
+
+        trendChart.setOption({
+            xAxis: {data: months},
+            series: [{
+                name: '月度激活数',
+                data: data
+            }]
+        });
+    }
+
+    function generateDateRange(startDate, endDate) {
+        const dates = [];
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        while (start <= end) {
+            dates.push((start.getMonth() + 1).toString().padStart(2, '0') + '-' +
+                start.getDate().toString().padStart(2, '0'));
+            start.setDate(start.getDate() + 1);
+        }
+
+        return dates;
+    }
+
+    function generateMonthRange(startMonth, endMonth) {
+        const months = [];
+        const start = new Date(startMonth + '-01');
+        const end = new Date(endMonth + '-01');
+
+        while (start <= end) {
+            months.push((start.getMonth() + 1) + '月');
+            start.setMonth(start.getMonth() + 1);
+        }
+
+        return months;
+    }
+
+    function generateRandomData(length, min, max) {
+        return Array.from({length}, () =>
+            Math.floor(Math.random() * (max - min + 1)) + min
+        );
+    }
+
+    function updateDealerRanking() {
+        const selectedMonth = document.getElementById('dealer-month').value;
+        const monthName = new Date(selectedMonth + '-01').toLocaleDateString('zh-CN', {year: 'numeric', month: 'long'});
+
+        // 扩展的月份数据模拟
+        const monthlyDealerData = {
+            '2024-08': [
+                {name: '江苏电子设备', level: '一级', count: 2680, levelClass: 'level1'},
+                {name: '上海智能科技', level: '一级', count: 2370, levelClass: 'level1'},
+                {name: '浙江机电商贸', level: '一级', count: 2070, levelClass: 'level1'},
+                {name: '安徽工控设备', level: '一级', count: 1520, levelClass: 'level1'},
+                {name: '南京智能科技', level: '二级', count: 1300, levelClass: 'level2'},
+                {name: '浦东电子设备', level: '二级', count: 1020, levelClass: 'level2'},
+                {name: '苏州工业设备', level: '二级', count: 870, levelClass: 'level2'},
+                {name: '徐汇智能设备', level: '二级', count: 730, levelClass: 'level2'},
+                {name: '张江科技园店', level: '三级', count: 400, levelClass: 'level3'},
+                {name: '陆家嘴金融店', level: '三级', count: 300, levelClass: 'level3'}
+            ],
+            '2024-07': [
+                {name: '江苏电子设备', level: '一级', count: 2580, levelClass: 'level1'},
+                {name: '上海智能科技', level: '一级', count: 2280, levelClass: 'level1'},
+                {name: '浙江机电商贸', level: '一级', count: 1980, levelClass: 'level1'},
+                {name: '南京智能科技', level: '二级', count: 1420, levelClass: 'level2'},
+                {name: '安徽工控设备', level: '一级', count: 1380, levelClass: 'level1'},
+                {name: '浦东电子设备', level: '二级', count: 980, levelClass: 'level2'},
+                {name: '苏州工业设备', level: '二级', count: 820, levelClass: 'level2'},
+                {name: '徐汇智能设备', level: '二级', count: 680, levelClass: 'level2'},
+                {name: '张江科技园店', level: '三级', count: 380, levelClass: 'level3'},
+                {name: '陆家嘴金融店', level: '三级', count: 280, levelClass: 'level3'}
+            ],
+            '2024-06': [
+                {name: '上海智能科技', level: '一级', count: 2450, levelClass: 'level1'},
+                {name: '江苏电子设备', level: '一级', count: 2380, levelClass: 'level1'},
+                {name: '浙江机电商贸', level: '一级', count: 1850, levelClass: 'level1'},
+                {name: '南京智能科技', level: '二级', count: 1350, levelClass: 'level2'},
+                {name: '安徽工控设备', level: '一级', count: 1280, levelClass: 'level1'},
+                {name: '浦东电子设备', level: '二级', count: 920, levelClass: 'level2'},
+                {name: '苏州工业设备', level: '二级', count: 780, levelClass: 'level2'},
+                {name: '徐汇智能设备', level: '二级', count: 650, levelClass: 'level2'},
+                {name: '张江科技园店', level: '三级', count: 360, levelClass: 'level3'},
+                {name: '陆家嘴金融店', level: '三级', count: 260, levelClass: 'level3'}
+            ],
+            '2024-05': [
+                {name: '江苏电子设备', level: '一级', count: 2280, levelClass: 'level1'},
+                {name: '浙江机电商贸', level: '一级', count: 2180, levelClass: 'level1'},
+                {name: '上海智能科技', level: '一级', count: 2080, levelClass: 'level1'},
+                {name: '安徽工控设备', level: '一级', count: 1480, levelClass: 'level1'},
+                {name: '南京智能科技', level: '二级', count: 1280, levelClass: 'level2'},
+                {name: '浦东电子设备', level: '二级', count: 880, levelClass: 'level2'},
+                {name: '苏州工业设备', level: '二级', count: 750, levelClass: 'level2'},
+                {name: '徐汇智能设备', level: '二级', count: 620, levelClass: 'level2'},
+                {name: '张江科技园店', level: '三级', count: 340, levelClass: 'level3'},
+                {name: '陆家嘴金融店', level: '三级', count: 240, levelClass: 'level3'}
+            ]
+        };
+
+        const data = monthlyDealerData[selectedMonth] || monthlyDealerData['2024-08'];
+
+        // 更新排行榜内容
+        const rankingList = document.querySelector('.ranking-list');
+        if (!rankingList) {
+            console.error('找不到排行榜容器');
+            return;
+        }
+        
+        rankingList.innerHTML = '';
+
+        data.forEach((dealer, index) => {
+            const rankingItem = document.createElement('div');
+            rankingItem.className = 'ranking-item';
+
+            const isTop3 = index < 3;
+            const numberClass = isTop3 ? 'ranking-number top3' : 'ranking-number';
+
+            rankingItem.innerHTML = `
+                <div class="${numberClass}">${index + 1}</div>
+                <div class="ranking-info">
+                    <div class="ranking-name">
+                        ${dealer.name}
+                        <span class="dealer-level-badge ${dealer.levelClass}">${dealer.level}</span>
+                    </div>
+                    <div class="ranking-value">${monthName}激活数</div>
+                </div>
+                <div class="ranking-count">${dealer.count.toLocaleString()}</div>
+            `;
+
+            rankingList.appendChild(rankingItem);
+        });
+        
+        console.log(`经销商排行已更新为${monthName}数据`);
+    }
+
+    function updateProductRanking() {
+        const selectedMonth = document.getElementById('product-month').value;
+        const monthName = new Date(selectedMonth + '-01').toLocaleDateString('zh-CN', {year: 'numeric', month: 'long'});
+
+        // 扩展的月份数据模拟
+        const monthlyData = {
+            '2024-08': [
+                {name: 'VT-200', value: 2850, percentage: 28.5},
+                {name: 'VT-150', value: 2340, percentage: 23.4},
+                {name: 'VT-300', value: 1890, percentage: 18.9},
+                {name: 'VT-100', value: 1456, percentage: 14.6},
+                {name: 'VT-250', value: 980, percentage: 9.8},
+                {name: 'VT-180', value: 678, percentage: 6.8},
+                {name: 'VT-120', value: 456, percentage: 4.6},
+                {name: 'VT-350', value: 234, percentage: 2.3},
+                {name: 'VT-80', value: 189, percentage: 1.9},
+                {name: 'VT-400', value: 127, percentage: 1.3}
+            ],
+            '2024-07': [
+                {name: 'VT-150', value: 2680, percentage: 26.8},
+                {name: 'VT-200', value: 2450, percentage: 24.5},
+                {name: 'VT-300', value: 2100, percentage: 21.0},
+                {name: 'VT-100', value: 1320, percentage: 13.2},
+                {name: 'VT-250', value: 890, percentage: 8.9},
+                {name: 'VT-180', value: 567, percentage: 5.7},
+                {name: 'VT-120', value: 345, percentage: 3.5},
+                {name: 'VT-350', value: 198, percentage: 2.0},
+                {name: 'VT-80', value: 156, percentage: 1.6},
+                {name: 'VT-400', value: 94, percentage: 0.9}
+            ],
+            '2024-06': [
+                {name: 'VT-300', value: 2580, percentage: 25.8},
+                {name: 'VT-200', value: 2380, percentage: 23.8},
+                {name: 'VT-150', value: 2180, percentage: 21.8},
+                {name: 'VT-100', value: 1280, percentage: 12.8},
+                {name: 'VT-250', value: 850, percentage: 8.5},
+                {name: 'VT-180', value: 520, percentage: 5.2},
+                {name: 'VT-120', value: 320, percentage: 3.2},
+                {name: 'VT-350', value: 180, percentage: 1.8},
+                {name: 'VT-80', value: 140, percentage: 1.4},
+                {name: 'VT-400', value: 80, percentage: 0.8}
+            ],
+            '2024-05': [
+                {name: 'VT-200', value: 2480, percentage: 24.8},
+                {name: 'VT-300', value: 2380, percentage: 23.8},
+                {name: 'VT-150', value: 2080, percentage: 20.8},
+                {name: 'VT-100', value: 1380, percentage: 13.8},
+                {name: 'VT-250', value: 920, percentage: 9.2},
+                {name: 'VT-180', value: 580, percentage: 5.8},
+                {name: 'VT-120', value: 380, percentage: 3.8},
+                {name: 'VT-350', value: 220, percentage: 2.2},
+                {name: 'VT-80', value: 160, percentage: 1.6},
+                {name: 'VT-400', value: 110, percentage: 1.1}
+            ],
+            '2024-04': [
+                {name: 'VT-150', value: 2580, percentage: 25.8},
+                {name: 'VT-300', value: 2280, percentage: 22.8},
+                {name: 'VT-200', value: 2180, percentage: 21.8},
+                {name: 'VT-100', value: 1480, percentage: 14.8},
+                {name: 'VT-250', value: 880, percentage: 8.8},
+                {name: 'VT-180', value: 480, percentage: 4.8},
+                {name: 'VT-120', value: 280, percentage: 2.8},
+                {name: 'VT-350', value: 160, percentage: 1.6},
+                {name: 'VT-80', value: 120, percentage: 1.2},
+                {name: 'VT-400', value: 60, percentage: 0.6}
+            ]
+        };
+
+        const data = monthlyData[selectedMonth] || monthlyData['2024-08'];
+
+        if (!productMonthlyChart) {
+            console.error('产品排行图表未初始化');
+            return;
+        }
+
+        // 按占比正序排列（占比最少的在上，最多的在下）
+        const sortedData = [...data].sort((a, b) => a.percentage - b.percentage);
+
+        const option = {
+            title: {
+                text: monthName + ' 产品型号激活排行',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16,
+                    color: '#1e293b',
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow',
+                    shadowStyle: {
+                        color: 'rgba(59, 130, 246, 0.1)'
+                    }
+                },
+                formatter: function (params) {
+                    const item = params[0];
+                    return `
+                            <div style="padding: 8px;">
+                                <div style="font-weight: bold; color: #1e293b; margin-bottom: 4px;">${item.name}</div>
+                                <div style="color: #64748b;">激活数量: <span style="color: #3b82f6; font-weight: bold;">${item.value.toLocaleString()}台</span></div>
+                                <div style="color: #64748b;">占比: <span style="color: #10b981; font-weight: bold;">${sortedData[item.dataIndex].percentage}%</span></div>
+                            </div>
+                        `;
+                },
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e2e8f0',
+                borderWidth: 1,
+                shadowBlur: 10,
+                shadowColor: 'rgba(0, 0, 0, 0.1)'
+            },
+            grid: {
+                left: '8%',
+                right: '15%',
+                bottom: '8%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                axisLabel: {
+                    fontSize: 11,
+                    color: '#64748b'
+                },
+                axisLine: {
+                    lineStyle: {color: '#e2e8f0'}
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f1f5f9',
+                        type: 'dashed'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: sortedData.map(item => item.name),
+                axisLabel: {
+                    fontSize: 12,
+                    color: '#475569',
+                    fontWeight: '500'
+                },
+                axisLine: {
+                    lineStyle: {color: '#e2e8f0'}
+                },
+                axisTick: {show: false}
+            },
+            series: [{
+                type: 'bar',
+                data: sortedData.map(item => item.value),
+                barWidth: '60%',
+                itemStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [{
+                            offset: 0, color: '#93c5fd'
+                        }, {
+                            offset: 1, color: '#60a5fa'
+                        }]
+                    },
+                    borderRadius: [0, 8, 8, 0]
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: function (params) {
+                        return sortedData[params.dataIndex].percentage + '%';
+                    },
+                    fontSize: 12,
+                    color: '#1e293b',
+                    fontWeight: 'bold',
+                    distance: 8
+                },
+                emphasis: {
+                    itemStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 1,
+                            y2: 0,
+                            colorStops: [{
+                                offset: 0, color: '#60a5fa'
+                            }, {
+                                offset: 1, color: '#3b82f6'
+                            }]
+                        }
+                    },
+                    label: {
+                        fontSize: 14,
+                        color: '#1e293b'
+                    }
+                },
+                animationDuration: 1000,
+                animationEasing: 'cubicOut'
+            }]
+        };
+
+        productMonthlyChart.setOption(option, true);
+        console.log(`产品型号排行已更新为${monthName}数据`);
+    }
+
+    function changeRegionPeriod(period, element) {
+        // 移除所有按钮的active状态
+        const buttons = element.parentNode.querySelectorAll('.control-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        // 设置当前按钮为active
+        element.classList.add('active');
+
+        // 切换控制面板显示
+        const dailyControls = document.getElementById('region-daily-controls');
+        const monthlyControls = document.getElementById('region-monthly-controls');
+        
+        if (period === 'daily') {
+            dailyControls.classList.remove('hidden');
+            monthlyControls.classList.add('hidden');
+        } else if (period === 'monthly') {
+            dailyControls.classList.add('hidden');
+            monthlyControls.classList.remove('hidden');
+        }
+
+        // 立即更新图表
+        updateRegionTrend();
+    }
+
+    function updateRegionTrend() {
+        // 检查当前是按日还是按月模式
+        const monthlyControls = document.getElementById('region-monthly-controls');
+        const isMonthlyMode = monthlyControls && !monthlyControls.classList.contains('hidden');
+        
+        console.log('Region trend mode:', isMonthlyMode ? 'monthly' : 'daily');
+
+        let data, titleText;
+
+        if (isMonthlyMode) {
+            // 按月数据 (近8个月)
+            data = {
+                dates: ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06', '2024-07', '2024-08'],
+                countries: {
+                    '中国': [14800, 15400, 15200, 16800, 18200, 19500, 20800, 22100],
+                    '美国': [4000, 4200, 4200, 4500, 4800, 5100, 5400, 5700],
+                    '德国': [2600, 2700, 2800, 3000, 3200, 3400, 3600, 3800],
+                    '日本': [2200, 2300, 2400, 2600, 2800, 3000, 3200, 3400],
+                    '英国': [1750, 1800, 1800, 1900, 2000, 2100, 2200, 2300],
+                    '法国': [1550, 1600, 1600, 1700, 1800, 1900, 2000, 2100]
+                }
+            };
+            titleText = '设备激活区域趋势 (按月统计)';
+        } else {
+            // 按日数据 (近7天)
+            data = {
+                dates: ['08-24', '08-25', '08-26', '08-27', '08-28', '08-29', '08-30'],
+                countries: {
+                    '中国': [720, 750, 680, 820, 890, 760, 850],
+                    '美国': [180, 195, 170, 210, 225, 190, 205],
+                    '德国': [120, 130, 115, 140, 150, 125, 135],
+                    '日本': [100, 110, 95, 120, 130, 105, 115],
+                    '英国': [75, 80, 70, 90, 95, 80, 85],
+                    '法国': [65, 70, 60, 80, 85, 70, 75]
+                }
+            };
+            titleText = '设备激活区域趋势 (按日统计)';
+        }
+        const series = Object.keys(data.countries).map((country, index) => {
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
+            return {
+                name: country,
+                type: 'line',
+                smooth: true,
+                data: data.countries[country],
+                itemStyle: {color: colors[index]},
+                lineStyle: {width: 3},
+                symbol: 'circle',
+                symbolSize: 6
+            };
+        });
+
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                formatter: function (params) {
+                    let result = params[0].axisValue + '<br/>';
+                    params.forEach(item => {
+                        result += item.marker + item.seriesName + ': ' + item.value.toLocaleString() + '台<br/>';
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                top: '10%',
+                textStyle: {fontSize: 12, color: '#64748b'}
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '8%',
+                top: '20%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: data.dates,
+                axisLabel: {fontSize: 11, color: '#64748b'}
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {fontSize: 11, color: '#64748b'}
+            },
+            series: series
+        };
+
+        regionTrendChart.setOption(option, true);
+    }
+
+    function changeRegion(region, element) {
+        document.querySelectorAll(element.parentNode.children).forEach(btn => {
+            btn.classList.remove('active');
+        });
+        element.classList.add('active');
+
+        if (region === 'domestic') {
+            showDomesticMap();
+        } else if (region === 'overseas') {
+            showOverseasMap();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initCharts();
+
+        window.addEventListener('resize', function () {
+            trendChart.resize();
+            productPieChart.resize();
+            productMonthlyChart.resize();
+            regionTrendChart.resize();
+            heatmapChart.resize();
+        });
+    });
+</script>
+
+
+</body>
+</html>
