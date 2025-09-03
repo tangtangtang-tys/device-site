@@ -825,24 +825,46 @@
         }
 
         .control-btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: 1px solid #e2e8f0;
             background: white;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .control-btn:hover {
-            background: #f1f5f9;
+            background: #f8fafc;
             border-color: #3b82f6;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
         }
 
         .control-btn.active {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-btn.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .region-toggle-container {
+            display: flex;
+            gap: 8px;
         }
 
         /* 排行榜样式 */
@@ -1205,14 +1227,14 @@
 
     <div class="content-area">
         <!-- 预警横幅 -->
-        <div class="alert-banner">
+        <!--<div class="alert-banner">
             <i class="fas fa-exclamation-triangle alert-icon"></i>
             <span><strong>激活率预警：</strong>当前激活率为68.5%，低于预设阈值70%，建议关注库存积压情况</span>
-        </div>
+        </div>-->
 
         <div class="current-dealer">
             <h2 id="current-dealer-name">维拍方案商总代理</h2>
-            <p id="current-dealer-desc">查看总览数据统计信息（统计起始：2022-06-01）</p>
+
         </div>
 
         <!-- 核心指标 -->
@@ -1373,10 +1395,10 @@
             </div>
         </div>
 
-        <!-- 每日设备激活趋势 - 单独一行 -->
+        <!-- 设备激活趋势 - 单独一行 -->
         <div class="chart-card large-chart">
             <div class="chart-header">
-                <div class="chart-title">每日设备激活趋势</div>
+                <div class="chart-title">设备激活趋势</div>
                 <div class="date-controls">
                     <button class="control-btn active" onclick="changePeriod('daily', this)">按日</button>
                     <button class="control-btn" onclick="changePeriod('monthly', this)">按月</button>
@@ -1480,17 +1502,25 @@
 
         <!-- 图表区域 -->
         <div class="charts-grid">
-            <!-- 近1年设备激活地区分布 -->
+            <!-- 设备激活地区分布 -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <div class="chart-title">近1年设备激活地区分布</div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="control-btn active" onclick="changeRegion('domestic', this)">国内</button>
-                        <button class="control-btn" onclick="changeRegion('overseas', this)">海外</button>
+                    <div class="chart-title">每月设备激活地区分布</div>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+
+                        <div class="query-controls">
+                            <input type="month" class="date-input" id="dealer-month" value="2024-08">
+                            <button class="apply-btn" onclick="updateDealerRanking()">查询</button>
+                        </div>
                     </div>
+                </div>
+                <div class="region-toggle-container">
+                    <button class="control-btn active" onclick="changeRegion('domestic', this)">国内</button>
+                    <button class="control-btn" onclick="changeRegion('overseas', this)">海外</button>
                 </div>
                 <div class="chart-container" id="heatmap-chart" _echarts_instance_="ec_1756715796681"
                      style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
+
                     <div style="position: relative; width: 725px; height: 314px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;">
                         <canvas data-zr-dom-id="zr_0" width="725" height="314"
                                 style="position: absolute; left: 0px; top: 0px; width: 725px; height: 314px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas>
@@ -1644,7 +1674,11 @@
             <!-- 累计设备激活产品型号占比分析 -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <div class="chart-title">累计设备激活产品型号占比分析</div>
+                    <div class="chart-title">设备激活产品型号月度占比分析</div>
+                    <div class="query-controls">
+                        <input type="month" class="date-input" id="product-month" value="2024-08">
+                        <button class="apply-btn" onclick="updateProductRanking()">查询</button>
+                    </div>
                 </div>
                 <div class="chart-container" id="product-pie-chart" _echarts_instance_="ec_1756715796678"
                      style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;">
@@ -2078,7 +2112,7 @@
         const dealerData = {
             'all': {
                 name: '维拍方案商总代理',
-                desc: '查看总览数据统计信息（统计起始：2022-06-01）',
+                desc: '',
                 totalDevices: '103,556',
                 activatedDevices: '70,956',
                 activationRate: '68.5%',
