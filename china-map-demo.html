@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国设备激活地图分布</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .map-container {
+            height: 600px;
+            padding: 20px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ 中国设备激活地图分布</h1>
+            <p>实时展示全国各省市设备激活情况</p>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">245,680</div>
+                <div class="stat-label">全国总设备</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">168,456</div>
+                <div class="stat-label">已激活设备</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">68.6%</div>
+                <div class="stat-label">激活率</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">34</div>
+                <div class="stat-label">覆盖省市</div>
+            </div>
+        </div>
+        
+        <div class="map-container" id="china-map"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fee2e2;"></div>
+                <span>0-5000台</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fbbf24;"></div>
+                <span>5000-15000台</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f59e0b;"></div>
+                <span>15000-25000台</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #d97706;"></div>
+                <span>25000台以上</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化地图
+        const mapChart = echarts.init(document.getElementById('china-map'));
+        
+        // 中国各省市设备激活数据
+        const chinaData = [
+            {name: '北京', value: 28456},
+            {name: '天津', value: 12800},
+            {name: '上海', value: 32100},
+            {name: '重庆', value: 18200},
+            {name: '河北', value: 15600},
+            {name: '山西', value: 9500},
+            {name: '辽宁', value: 14200},
+            {name: '吉林', value: 8800},
+            {name: '黑龙江', value: 11200},
+            {name: '江苏', value: 45600},
+            {name: '浙江', value: 38900},
+            {name: '安徽', value: 22300},
+            {name: '福建', value: 19800},
+            {name: '江西', value: 16500},
+            {name: '山东', value: 42100},
+            {name: '河南', value: 28900},
+            {name: '湖北', value: 24600},
+            {name: '湖南', value: 26800},
+            {name: '广东', value: 52300},
+            {name: '广西', value: 18600},
+            {name: '海南', value: 4200},
+            {name: '四川', value: 31200},
+            {name: '贵州', value: 12800},
+            {name: '云南', value: 16900},
+            {name: '西藏', value: 2100},
+            {name: '陕西', value: 19800},
+            {name: '甘肃', value: 8900},
+            {name: '青海', value: 3200},
+            {name: '宁夏', value: 4800},
+            {name: '新疆', value: 9600},
+            {name: '内蒙古', value: 11800},
+            {name: '台湾', value: 8900},
+            {name: '香港', value: 6200},
+            {name: '澳门', value: 1800}
+        ];
+
+        // 异步加载中国地图数据
+        fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+            .then(response => response.json())
+            .then(geoJson => {
+                // 注册地图
+                echarts.registerMap('china', geoJson);
+                
+                // 配置地图选项
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function(params) {
+                            if (params.value) {
+                                return `
+                                    <div style="padding: 10px;">
+                                        <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">${params.name}</div>
+                                        <div style="color: #3b82f6;">激活设备: <strong>${params.value.toLocaleString()}台</strong></div>
+                                        <div style="color: #10b981;">激活率: <strong>${(Math.random() * 30 + 60).toFixed(1)}%</strong></div>
+                                    </div>
+                                `;
+                            }
+                            return params.name + '<br/>暂无数据';
+                        },
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    visualMap: {
+                        min: 0,
+                        max: 55000,
+                        left: 'left',
+                        top: 'bottom',
+                        text: ['高', '低'],
+                        calculable: true,
+                        inRange: {
+                            color: ['#fee2e2', '#fbbf24', '#f59e0b', '#d97706', '#b45309']
+                        },
+                        textStyle: {
+                            color: '#64748b',
+                            fontSize: 12
+                        }
+                    },
+                    series: [{
+                        name: '设备激活数',
+                        type: 'map',
+                        map: 'china',
+                        roam: true,
+                        scaleLimit: {
+                            min: 0.8,
+                            max: 3
+                        },
+                        data: chinaData,
+                        itemStyle: {
+                            borderColor: '#ffffff',
+                            borderWidth: 1,
+                            shadowBlur: 5,
+                            shadowColor: 'rgba(0,0,0,0.1)'
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                areaColor: '#3b82f6',
+                                borderColor: '#1e40af',
+                                borderWidth: 2,
+                                shadowBlur: 15,
+                                shadowColor: 'rgba(59, 130, 246, 0.5)'
+                            },
+                            label: {
+                                show: true,
+                                fontSize: 14,
+                                fontWeight: 'bold',
+                                color: '#ffffff'
+                            }
+                        },
+                        label: {
+                            show: true,
+                            fontSize: 11,
+                            color: '#1e293b',
+                            fontWeight: '500'
+                        }
+                    }]
+                };
+                
+                mapChart.setOption(option);
+                
+                // 添加点击事件
+                mapChart.on('click', function(params) {
+                    if (params.data) {
+                        alert(`${params.name}\n激活设备: ${params.data.value.toLocaleString()}台\n点击查看详细信息`);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('加载地图数据失败:', error);
+                // 使用简化版地图数据作为备选
+                const simpleGeoJson = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": {"name": "北京"},
+                            "geometry": {"type": "Polygon", "coordinates": [[[116.4, 39.9], [116.5, 39.9], [116.5, 40.0], [116.4, 40.0], [116.4, 39.9]]]}
+                        },
+                        {
+                            "type": "Feature", 
+                            "properties": {"name": "上海"},
+                            "geometry": {"type": "Polygon", "coordinates": [[[121.4, 31.2], [121.5, 31.2], [121.5, 31.3], [121.4, 31.3], [121.4, 31.2]]]}
+                        }
+                    ]
+                };
+                echarts.registerMap('china', simpleGeoJson);
+                mapChart.setOption({
+                    series: [{
+                        name: '设备激活数',
+                        type: 'map',
+                        map: 'china',
+                        data: chinaData.slice(0, 2)
+                    }]
+                });
+            });
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            mapChart.resize();
+        });
+    </script>
+</body>
+</html>

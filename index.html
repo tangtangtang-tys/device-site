@@ -912,7 +912,7 @@
         .ranking-name {
             font-weight: 500;
             color: #1e293b;
-            margin-bottom: 2px;
+            margin-bottom: 8px;
         }
 
         .ranking-value {
@@ -1532,7 +1532,7 @@
             <!-- 一级经销商激活排行TOP10 -->
             <div class="chart-card" id="dealer-ranking-card" style="display: block;">
                 <div class="chart-header">
-                    <div class="chart-title">经销商设备激活月度排行TOP10</div>
+                    <div class="chart-title">一级经销商设备激活月度排行TOP10</div>
                     <div class="query-controls">
                         <input type="month" class="date-input" id="dealer-month" value="2024-08">
                         <button class="apply-btn" onclick="updateDealerRanking()">查询</button>
@@ -1544,7 +1544,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 江苏电子设备
-                                <span class="dealer-level-badge level1">一级</span>
+                                <!-- <span class="dealer-level-badge level1">一级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1555,7 +1555,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 上海智能科技
-                                <span class="dealer-level-badge level1">一级</span>
+                                <!-- <span class="dealer-level-badge level1">一级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1566,7 +1566,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 浙江机电商贸
-                                <span class="dealer-level-badge level1">一级</span>
+                                <!-- <span class="dealer-level-badge level1">一级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1577,7 +1577,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 安徽工控设备
-                                <span class="dealer-level-badge level1">一级</span>
+                                <!-- <span class="dealer-level-badge level1">一级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1588,7 +1588,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 南京智能科技
-                                <span class="dealer-level-badge level2">二级</span>
+                                <!-- <span class="dealer-level-badge level2">二级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1599,7 +1599,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 浦东电子设备
-                                <span class="dealer-level-badge level2">二级</span>
+                                <!-- <span class="dealer-level-badge level2">二级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1610,7 +1610,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 苏州工业设备
-                                <span class="dealer-level-badge level2">二级</span>
+                                <!-- <span class="dealer-level-badge level2">二级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1621,7 +1621,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 徐汇智能设备
-                                <span class="dealer-level-badge level2">二级</span>
+                                <!-- <span class="dealer-level-badge level2">二级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1632,7 +1632,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 张江科技园店
-                                <span class="dealer-level-badge level3">三级</span>
+                                <!-- <span class="dealer-level-badge level3">三级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -1643,7 +1643,7 @@
                         <div class="ranking-info">
                             <div class="ranking-name">
                                 陆家嘴金融店
-                                <span class="dealer-level-badge level3">三级</span>
+                                <!-- <span class="dealer-level-badge level3">三级</span> -->
                             </div>
                             <div class="ranking-value">2024年8月激活数</div>
                         </div>
@@ -2387,9 +2387,7 @@
                 <div class="ranking-info">
                     <div class="ranking-name">
                         ${dealer.name}
-                        <span class="dealer-level-badge ${dealer.levelClass}">${dealer.level}</span>
                     </div>
-                    <div class="ranking-value">${monthName}激活数</div>
                 </div>
                 <div class="ranking-count">${dealer.count.toLocaleString()}</div>
             `;
